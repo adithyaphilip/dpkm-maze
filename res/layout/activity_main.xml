@@ -1,0 +1,25 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="horizontal"
+    tools:context=".MainActivity" >
+	<Button 
+	    android:text="New Game"
+	    android:onClick="onPlayClick"
+	    android:layout_width="wrap_content"
+   		android:layout_height="wrap_content"
+   		android:layout_marginLeft="30dp"
+	    android:layout_margin="10dp" />
+	<Button 
+	    android:text="  Exit  "
+	    android:onClick="onExitClick" 
+	    android:layout_width="wrap_content"
+   		android:layout_height="wrap_content"/>
+	<Button
+	    android:text="2-Player"
+	    android:onClick="on2PlayerClick"
+	    android:layout_height="wrap_content"
+	    android:layout_width="wrap_content" />
+</LinearLayout>
