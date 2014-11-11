@@ -6,8 +6,10 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PointF;
 import android.graphics.Typeface;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.MotionEvent;
 import android.view.View;
@@ -43,15 +45,16 @@ public class PracticeModeView extends View {
 
 	Handler mHandler;
 
-	public PracticeModeView(Context context, float width, float height, int maze[][], Handler h) {
+	public PracticeModeView(Context context, float width, float height,
+			int maze[][], Handler h) {
 		super(context);
 		mHandler = h;
 
 		this.mCols = maze.length;
 		this.mRows = maze[0].length;
-		
-		this.unit = getUnitSize(height,mRows);
-		
+
+		this.unit = getUnitSize(height, mRows);
+
 		mActivePointers = new SparseArray<PointF>();
 		this.W = width;
 		this.H = height;
@@ -77,14 +80,17 @@ public class PracticeModeView extends View {
 		rX = retDestX = destX;
 		rY = retDestY = destY;
 	}
-	private float getUnitSize(float height, int rows){
-		float unit = (float) ((height * 0.8) /(rows * 6));
+
+	private float getUnitSize(float height, int rows) {
+		float unit = (float) ((height * 0.8) / (rows * 6));
 		return unit;
 	}
+
 	// super class method called when invalidate(), it renders the graphics
 	public void onDraw(Canvas canvas) {
 		switch (draw) {
 		case STATE_PLAY:
+			postPosMessage();
 			paintMaze(canvas);
 			paintDestination(canvas);
 			paintBall(canvas);
@@ -114,7 +120,15 @@ public class PracticeModeView extends View {
 		draw = state;
 		invalidate();
 	}
-
+	private void postPosMessage(){
+		Message msg = mHandler.obtainMessage();
+		msg.what = MazeConstants.EVENT_POSITION_UPDATE;
+		Bundle b = new Bundle();
+		Log.d("VIEW","pos"+ballX/(float)(mazeXf-mazeX)+":"+ballY/(float)(mazeYf-mazeY));
+		b.putFloat(MazeConstants.PositionUpdates.KEY_X_FRACTION, ballX/(float)(mazeXf-mazeX));		
+		b.putFloat(MazeConstants.PositionUpdates.KEY_Y_FRACTION, ballY/(float)(mazeYf-mazeY));	
+		mHandler.sendMessage(msg);
+	}
 	private void paintLoss(Canvas canvas) {
 		paint.setColor(Color.rgb(255, 145, 70));
 		canvas.drawRect(0, 0, W, H, paint);
@@ -338,5 +352,13 @@ public class PracticeModeView extends View {
 		}
 		invalidate();
 		return true;
+	}
+	/**
+	 * called when opponent position update is received
+	 * @param xFract x of opponent represented as fraction of maze size
+	 * @param yFract y of opponent represented as fraction of maze size
+	 */ 
+	public void updateOpponentPosition(float xFract, float yFract){
+		invalidate();
 	}
 }

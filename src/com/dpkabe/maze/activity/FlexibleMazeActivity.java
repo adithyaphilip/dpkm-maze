@@ -99,7 +99,9 @@ public class FlexibleMazeActivity extends Activity{
 	Handler mHandler = new Handler(){
 		@Override
 		public void handleMessage(Message msg){
-			mDrawView.setOnClickListener(endActivityOnClickListener);
+			Bundle b = msg.getData();
+			float x = b.getFloat(MazeConstants.PositionUpdates.KEY_X_FRACTION);
+			float y = b.getFloat(MazeConstants.PositionUpdates.KEY_Y_FRACTION);
 			//we don't care about EVENT_LOSS as opponent loss can only be caused by our win
 			switch(msg.what){
 			case MazeConstants.EVENT_CRASH:
@@ -107,6 +109,10 @@ public class FlexibleMazeActivity extends Activity{
 				break;
 			case MazeConstants.EVENT_WIN:
 				onWin();
+				break;
+			case MazeConstants.EVENT_POSITION_UPDATE:
+				onOwnPositionUpdate(x,y);
+				break;
 			}
 		}
 	};
@@ -127,8 +133,14 @@ public class FlexibleMazeActivity extends Activity{
         mDrawView.setBackgroundColor(Color.WHITE);
         setContentView(mDrawView);
 	}
+	/**
+	 * messages are encoded using ':' as a delimiter. Variable-length instructions allowed.
+	 * Guarenteed to have first part, serves as 'what' code
+	 * @param message
+	 */
 	public void decodeMessage(String message){
-		int what = Integer.parseInt(message);
+		String[] parts = message.split(":");
+		int what = Integer.parseInt(parts[0]);
 		switch(what){
 		case MazeConstants.EVENT_CRASH:
 			onOpponentCrash();
@@ -137,6 +149,8 @@ public class FlexibleMazeActivity extends Activity{
 			onOpponentWin();
 			break;
 			//no onOpponentLoss as his loss is determined only by your win
+		case MazeConstants.EVENT_POSITION_UPDATE:
+			updateOpponentPosition(Float.parseFloat(parts[1]),Float.parseFloat(parts[2]));
 		}
 			
 	}
@@ -178,5 +192,13 @@ public class FlexibleMazeActivity extends Activity{
 			eventCommunicated = true;
 			sendMessage(""+MazeConstants.EVENT_WIN);
 		}
+	}
+	public void onOwnPositionUpdate(float xFract, float yFract){
+		sendMessage(MazeConstants.EVENT_POSITION_UPDATE+":"+xFract+":"+yFract);
+		Log.d("ownPos","o"+xFract+":"+yFract);
+	}
+	public void updateOpponentPosition(float xFract, float yFract){
+		mDrawView.updateOpponentPosition(xFract, yFract);
+		Log.d("oppPos","opp"+xFract+":"+yFract);
 	}
 }
