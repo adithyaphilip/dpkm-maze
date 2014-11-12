@@ -72,6 +72,7 @@ public class MazeActivity2 extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Display display = getWindowManager().getDefaultDisplay();
+        
         Point size = new Point();
         display.getSize(size);
         int width = size.x;

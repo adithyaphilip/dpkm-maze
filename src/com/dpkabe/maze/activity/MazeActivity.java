@@ -1,5 +1,7 @@
 package com.dpkabe.maze.activity;
 
+import com.dpkabe.maze.mazeutils.MazeConstants;
+import com.dpkabe.maze.mazeutils.MazeGenerator;
 import com.dpkabe.maze.view.DrawView;
 import com.example.maze.R;
 
@@ -21,9 +23,10 @@ public class MazeActivity extends Activity {
         display.getSize(size);
         int width = size.x;
         int height = size.y;
-        int x=width/80,y=height/60;
-        int path=10;
-        drawView = new DrawView(this,width,height,path,x,y);
+        
+        MazeGenerator mg = new MazeGenerator(MazeConstants.MAZE_ROWS,MazeConstants.MAZE_COLS);
+        int[][] maze = mg.getMaze();
+        drawView = new DrawView(this,width,height,maze);
         drawView.setBackgroundColor(Color.WHITE);
         setContentView(drawView);
     }

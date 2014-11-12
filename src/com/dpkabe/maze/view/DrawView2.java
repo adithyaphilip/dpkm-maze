@@ -1,5 +1,5 @@
 package com.dpkabe.maze.view;
- 
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -17,85 +17,81 @@ import com.dpkabe.maze.mazeutils.MazeConstants;
 import com.dpkabe.maze.mazeutils.MazeGenerator;
 
 public class DrawView2 extends View {
-	/* below constants are used to set draw values
-	 * assigning them constant names helps in:
-	 * a) Understanding what each change to draw means without having to check the switch case in onDraw
-	 * b) Ensuring right int value is set for draw when corresponding event occurs
-	 * c) When a new draw int value is added, it is easy to make sure we are not using an existing value
-	 * d) Easy refactoring, if for some reason values of draw states need to be changed
+	/*
+	 * below constants are used to set draw values assigning them constant names
+	 * helps in: a) Understanding what each change to draw means without having
+	 * to check the switch case in onDraw b) Ensuring right int value is set for
+	 * draw when corresponding event occurs c) When a new draw int value is
+	 * added, it is easy to make sure we are not using an existing value d) Easy
+	 * refactoring, if for some reason values of draw states need to be changed
 	 * e) Much more readable code
-	 **/
-	
+	 */
+
 	public final static int STATE_PLAY = 1;
 	public final static int STATE_CRASH = 2;
 	public final static int STATE_WIN = 3;
 	public final static int STATE_LOSS = 4;
-	
+
 	private Canvas mCanvas;
-	
+
 	private SparseArray<PointF> mActivePointers;
 	Paint paint = new Paint();
-	int W = getWidth(), H = getHeight();//wrong because a View does not know it's height and width until it is drawn, and drawing occurs after object is created
+	int W,H;
 	float ballX, ballY;
-	int x, y;//x is columns (x-axis), y is rows (y-axis)
+	float oppX, oppY;
+	int x, y;// x is columns (x-axis), y is rows (y-axis)
 	int draw = STATE_PLAY;
-	int mazeX, mazeY, mazeXf, mazeYf;
-	int path;
-	int dirX, dirY;
+	float mazeX, mazeY, mazeXf, mazeYf;
+	float path;
 	int delay = 0;
 	MazeGenerator mg;
 	int[][] mMazeInt;
 	LongestPathFinder lpf;
 	Stack retPath, keys;
-	int destX, destY, destfX, destfY;
+	float destX, destY, destfX, destfY;
 	float iniX, iniY;
-	int rX, rY, retDestX, retDestY;
+	float rX, rY, retDestX, retDestY;
 
 	int key_count = 0;
 	int key_score = 0;
-	
+
 	Handler mHandler;
 
-	/*
-	 * public DrawView(Context context, int width, int height) { super(context);
-	 * Log.d("w&h",Integer.toString(width)+" "+Integer.toString(height));
-	 * mActivePointers = new SparseArray<PointF>(); W = width; H = height; path
-	 * = 10; mazeX = W * 20 / 100; mazeY = W * 20 / 100; mazeXf = mazeX + path *
-	 * 5 * x + path; mazeYf = mazeY + path * 5 * y + path; ballX = mazeX + 3 *
-	 * path; ballY = mazeY + 3 * path; iniX = ballX; iniY = ballY; destfX =
-	 * mazeX + 5 * path * destX + 3 * path; destfY = mazeY + 5 * (path + 2) *
-	 * destY + 3 * path; }
-	 */
 	/**
-	 * NOTE:- This class uses the maze such that it appears to be TRANSPOSED while drawing
+	 * NOTE:- This class uses the maze such that it appears to be TRANSPOSED
+	 * while drawing
+	 * 
 	 * @param context
-	 * @param width width of area for DrawView
-	 * @param height height of area for DrawView
-	 * @param maze maze to be drawn
-	 * @param mHandler handler to use to inform calling activity about certain actions like winning or losing
+	 * @param width
+	 *            width of area for DrawView
+	 * @param height
+	 *            height of area for DrawView
+	 * @param maze
+	 *            maze to be drawn
+	 * @param mHandler
+	 *            handler to use to inform calling activity about certain
+	 *            actions like winning or losing
 	 */
-	public DrawView2(Context context, int width, int height, int[][] maze, Handler h) {
+	public DrawView2(Context context, int width, int height, int[][] maze,
+			Handler h) {
 		super(context);
-		
+
 		mHandler = h;
-		
-		Log.d("w&h", Integer.toString(width) + " " + Integer.toString(height));
+
 		mActivePointers = new SparseArray<PointF>();
 		W = width;
 		H = height;
-		
-		
+
 		this.x = maze.length;
 		this.y = maze[0].length;
+		this.path = getPathSize(width, height);
 		
-		mazeX = W * 20 / 100;
-		mazeY = W * 20 / 100;
-		
-		this.path = getPathSize(width-mazeX, height-mazeY);
-		
+		mazeX = (width - (path * 5 * x + path)) / 2;
+		mazeY = 2 * path;		
+
 		mazeXf = mazeX + path * 5 * x + path;
 		mazeYf = mazeY + path * 5 * y + path;
-		Log.d("DrawView2","mazeXf"+mazeXf+"mazeYf"+mazeYf);
+		Log.d("DrawView2", "mazeXf" + mazeXf + "mazeYf" + mazeYf);
 		ballX = mazeX + 3 * path;
 		ballY = mazeY + 3 * path;
 		iniX = ballX;
@@ -103,9 +99,10 @@ public class DrawView2 extends View {
 		destfX = mazeX + 5 * path * destX + 3 * path;
 		destfY = mazeY + 5 * (path + 2) * destY + 3 * path;
 
-		mMazeInt=maze;
-		
-		lpf = new LongestPathFinder(mMazeInt, mMazeInt.length, mMazeInt[0].length);
+		mMazeInt = maze;
+
+		lpf = new LongestPathFinder(mMazeInt, mMazeInt.length,
+				mMazeInt[0].length);
 		retPath = lpf.getLongestPath();
 		keys = lpf.getEndPoints();
 		key_count = keys.getSize();
@@ -114,48 +111,49 @@ public class DrawView2 extends View {
 		rX = retDestX = destX;
 		rY = retDestY = destY;
 	}
+
 	/**
 	 * sets opponent x and y co-ordinates from outside
+	 * 
 	 * @param x
 	 * @param y
 	 */
-	public void setOpponentXY(int x, int y){
-		//Deepu
-		//assume x and y are the co-ordinates of opponent move. This should set the co-ords such that in the next onDraw opponent will be drawn at right place
+	public void setOpponentXY(int x, int y) {
+		oppX = x;
+		oppY = y;
 	}
+
 	/**
-	 * Used to determine required path size by taking minimum of maximum possible size of path considering width, and height
-	 * @param width width LEFT FOR THE MAZE
-	 * @param height height LEFT FOR THE MAZE
-	 * @param mMaze maze to be drawn
+	 * Used to determine required path size by taking minimum of maximum
+	 * possible size of path considering width, and height
+	 * 
+	 * @param width
+	 *            width LEFT FOR THE MAZE
+	 * @param height
+	 *            height LEFT FOR THE MAZE
+	 * @param mMaze
+	 *            maze to be drawn
 	 * @return
 	 */
-	public int getPathSize(int width, int height){
-		/*
-		 * using: 
-		 * mazeXf = mazeX + path * 5 * x + path; =>width = path(5x+1), path = width/5x+1
-		 * mazeYf = mazeY + path * 5 * y + path;
-		 */
-		int cols = x;
-		int rows = y;
-		Log.d("DrawView2","width="+width+"height="+height+"rows"+rows+"cols"+cols);
-		
-		int maxPathFromWidth = width/(cols+1);
-		int maxPathFromHeight = height/(rows+1);
-		return Math.min(maxPathFromWidth, maxPathFromHeight)/5;
+	public float getPathSize(int width, int height) {
+		return (float) ((height * 0.8) / (y * 5));
 	}
-	public void setDrawState(int state){
+
+	public void setDrawState(int state) {
 		draw = state;
 		invalidate();
 	}
+
+	// super class method called when invalidate(), it renders the graphics
 	public void onDraw(Canvas canvas) {
 		mCanvas = canvas;
 		switch (draw) {
 		case STATE_PLAY:
 			paintMaze(canvas);
 			paintDestination(canvas);
-			paintBall(canvas);
 			paintKeys(canvas);
+			paintOpponent(canvas);
+			paintBall(canvas);
 			paintBackgroundColor(canvas);
 			paintControlLine(canvas);
 			paintPointers(canvas);
@@ -170,33 +168,45 @@ public class DrawView2 extends View {
 			break;
 		case STATE_LOSS:
 			paintLoss(canvas);
-			//postLossMessage(mHandler); no need as your loss is detected by outlying activity from opponent win only. Hence activity already knows about it
+			// postLossMessage(mHandler); no need as your loss is detected by
+			// outlying activity from opponent win only. Hence activity already
+			// knows about it
 			break;
 		}
 	}
-	private void postCrashMessage(Handler h){
+
+	private void paintOpponent(Canvas canvas) {
+		paint.setColor(Color.rgb(255, 127, 39));
+
+		paint.setStrokeWidth(2f);
+		canvas.drawCircle(ballX, ballY, path, paint);
+	}
+
+	private void postCrashMessage(Handler h) {
 		Message msg = h.obtainMessage();
-		msg.what=MazeConstants.EVENT_CRASH;
+		msg.what = MazeConstants.EVENT_CRASH;
 		h.sendMessage(msg);
 	}
-	private void postWinMessage(Handler h){
+
+	private void postWinMessage(Handler h) {
 		Message msg = h.obtainMessage();
-		msg.what=MazeConstants.EVENT_WIN;
+		msg.what = MazeConstants.EVENT_WIN;
 		h.sendMessage(msg);
 	}
+
+	// method to paint the remaining keys at end-points
 	private void paintKeys(Canvas canvas) {
 		keys = checkKeyStatus(keys);
 		Node key = keys.top();
 		paint.setColor(Color.rgb(255, 208, 47));
-		paint.setStrokeWidth(2f);
-
 		while (key != null) {
 			canvas.drawCircle(mazeX + 5 * path * key.getX() + 3 * path, mazeY
-					+ 5 * path * key.getY() + 3 * path, 10f, paint);
+					+ 5 * path * key.getY() + 3 * path, path, paint);
 			key = key.getNext();
 		}
-
 	}
+
+	// checks if the ball collides with any of the remaining-keys
 	private Stack checkKeyStatus(Stack keys) {
 		Node key = keys.top();
 		while (key != null) {
@@ -205,22 +215,23 @@ public class DrawView2 extends View {
 					&& ballY < mazeY + 5 * path * key.getY() + 3 * path + 10
 					&& ballY > mazeY + 5 * path * key.getY() + 3 * path - 10) {
 				++key_score;
-				if (key.getNext() == null){
+				if (key.getNext() == null) {
 					keys.removeLastNode();
-				}					
-				else
+				} else
 					key.removeCurrentNode();
 			}
 			key = key.getNext();
 		}
 		return keys;
 	}
-	
+
+	// paints the pointers which show position of player
 	private void paintPointers(Canvas canvas) {
 		paint.setColor(Color.GRAY);
-		paint.setStrokeWidth(2f);
-		canvas.drawCircle(ballX, mazeY - 5 * path, 5f, paint);
-		canvas.drawCircle(mazeX - 5 * path, ballY, 5f, paint);
+		// left control-line pointer
+		canvas.drawCircle(mazeX - 3 * path, ballY, path / 2, paint);
+		// bottom control-line pointer
+		canvas.drawCircle(ballX, mazeYf + 3 * path, path / 2, paint);
 	}
 
 	private void paintCrash(Canvas canvas) {
@@ -229,48 +240,45 @@ public class DrawView2 extends View {
 		paint.setColor(Color.rgb(255, 198, 159));
 		paint.setTextSize(80);
 		paint.setTypeface(Typeface.DEFAULT_BOLD);
-		canvas.save();
-		canvas.rotate((float) 90, W / 2, H / 4);
-		canvas.drawText("Nasty bump!", W / 2, H / 4, paint);
-		canvas.restore();
+		canvas.drawText("Nasty bump!", W / 2, H / 4, paint);		
 	}
+
 	private void paintLoss(Canvas canvas) {
 		paint.setColor(Color.rgb(255, 145, 70));
 		canvas.drawRect(0, 0, W, H, paint);
 		paint.setColor(Color.rgb(255, 198, 159));
 		paint.setTextSize(80);
 		paint.setTypeface(Typeface.DEFAULT_BOLD);
-		canvas.save();
-		canvas.rotate((float) 90, W / 2, H / 4);
 		canvas.drawText("You lost!", W / 2, H / 4, paint);
-		canvas.restore();
 	}
-	public void paintWinner(Canvas canvas) {
+
+	private void paintWinner(Canvas canvas) {
 		paint.setColor(Color.rgb(189, 233, 59));
 		canvas.drawRect(0, 0, W, H, paint);
 		paint.setColor(Color.rgb(235, 249, 193));
 		paint.setTextSize(80);
 		paint.setTypeface(Typeface.DEFAULT_BOLD);
-		canvas.save();
-		canvas.rotate((float) 90, W / 2, H / 4);
 		canvas.drawText("You Won!", W / 2, H / 4, paint);
-		canvas.restore();
 	}
 
 	private void paintDestination(Canvas canvas) {
 		paint.setColor(Color.rgb(200, 200, 200));
 		paint.setStrokeWidth(2f);
 		canvas.drawCircle(mazeX + 5 * path * destX + 3 * path, mazeY + 5 * path
-				* destY + 3 * path, 10f, paint);
+				* destY + 3 * path, path, paint);
 	}
 
+	// paints line on which pointer is placed
 	private void paintControlLine(Canvas canvas) {
 		paint.setColor(Color.rgb(153, 217, 234));
 		paint.setStrokeWidth(10f);
-		canvas.drawLine(mazeX + path, mazeY - 5 * path, mazeXf - path, mazeY
-				- 5 * path, paint);
-		canvas.drawLine(mazeX - 5 * path, mazeY + path, mazeX - 5 * path,
+
+		// left control line
+		canvas.drawLine(mazeX - 3 * path, mazeY + path, mazeX - 3 * path,
 				mazeYf - path, paint);
+		// bottom control line
+		canvas.drawLine(mazeX + path, mazeYf + 3 * path, mazeXf - path, mazeYf
+				+ 3 * path, paint);
 	}
 
 	private void paintBackgroundColor(Canvas canvas) {
@@ -287,18 +295,18 @@ public class DrawView2 extends View {
 				&& ballY < mazeY + 5 * path * destY + 3 * path + 10
 				&& ballY > mazeY + 5 * path * destY + 3 * path - 10
 				&& key_score == key_count) {
-			draw = STATE_WIN;
+			draw = 3;
 		}
 		paint.setColor(Color.GRAY);
-		paint.setStrokeWidth(2f);
-		canvas.drawCircle(ballX, ballY, 10f, paint);
+		canvas.drawCircle(ballX, ballY, path, paint);
 	}
 
 	public void paintMaze(Canvas canvas) {
 		paint.setColor(Color.rgb(0, 162, 232));
 		paint.setStrokeWidth(5);
-		int px = mazeX, py = mazeY;
+		float px = mazeX, py = mazeY;
 		for (int i = 0; i < y; i++) {
+			// print horizontal lines
 			for (int j = 0; j < x; j++) {
 				if ((mMazeInt[j][i] & 1) == 0) {
 					if (checkCollision(px, py, px + 5 * path, py + path))
@@ -314,6 +322,7 @@ public class DrawView2 extends View {
 			}
 			canvas.drawRect(px, py, px + path, py + path, paint);
 			px = mazeX;
+			// print vertical lines
 			for (int j = 0; j < x; j++) {
 				if ((mMazeInt[j][i] & 8) == 0) {
 					if (checkCollision(px, py, px + path, py + 5 * path))
@@ -330,18 +339,15 @@ public class DrawView2 extends View {
 			py += 5 * path;
 			px = mazeX;
 		}
-		for (int j = 0; j < x; j++) {
-			if (checkCollision(px, py, px + 5 * path, py + path))
-				draw = STATE_CRASH;
-			canvas.drawRect(px, py, px + 5 * path, py + path, paint);
-			px += 5 * path;
-		}
-		canvas.drawRect(px, py, px + path, py + path, paint);
+		// print bottom line
+		if (checkCollision(px, py, px + 5 * x * path + path, py + path))
+			draw = STATE_CRASH;
+		canvas.drawRect(px, py, px + 5 * x * path + path, py + path, paint);
 	}
 
-	public boolean checkCollision(int px, int py, int pxf, int pyf) {
+	public boolean checkCollision(float px, float py, float f, float g) {
 		float ballR = ballX + 2, ballL = ballX - 2, ballT = ballY - 2, ballB = ballY + 2;
-		if (ballR > px && ballL < pxf && ballB > py && ballT < pyf)
+		if (ballR > px && ballL < f && ballB > py && ballT < g)
 			return true;
 		return false;
 	}
