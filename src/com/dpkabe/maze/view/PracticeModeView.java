@@ -1,5 +1,4 @@
 package com.dpkabe.maze.view;
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -135,6 +134,11 @@ public class PracticeModeView extends View {
 		msg.setData(b);
 		mHandler.sendMessage(msg);
 	}
+	private void postQuitMessage(){
+		Message msg = mHandler.obtainMessage();
+		msg.what = MazeConstants.QUIT_MAZE;
+		mHandler.sendMessage(msg);
+	}
 	private void paintLoss(Canvas canvas) {
 		paint.setColor(Color.rgb(255, 145, 70));
 		canvas.drawRect(0, 0, W, H, paint);
@@ -254,11 +258,11 @@ public class PracticeModeView extends View {
 				&& key_score == key_count) {
 			mGameState = 3;
 		}
-		paint.setColor(Color.MAGENTA);
+		paint.setColor(Color.GRAY);
 		canvas.drawCircle(ballX, ballY, unit, paint);
 	}
 	private void paintOpponentBall(Canvas canvas){
-		paint.setColor(Color.GRAY);
+		paint.setColor(Color.rgb(255, 168, 111));
 		canvas.drawCircle(mOppBallX, mOppBallY, unit, paint);
 	}
 	public void paintMaze(Canvas canvas) {
@@ -317,7 +321,7 @@ public class PracticeModeView extends View {
 		case STATE_CRASH:
 		case STATE_LOSS:
 		case STATE_WIN:
-			Log.d("IGNORED TOUCH!!","ignored");
+			postQuitMessage();
 			return false;//don't handle touch event
 		}
 		int pointerIndex = event.getActionIndex();
