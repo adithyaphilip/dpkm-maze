@@ -1,6 +1,5 @@
 package com.dpkabe.maze.view;
 
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -13,13 +12,18 @@ import android.view.View;
 
 import com.dpkabe.maze.mazeutils.MazeGenerator;
 
-public class ChallengeModeBeta extends View {
+public class ChallengeModeEasy extends View {
+	public final static int STATE_PLAY = 1;
+	public final static int STATE_CRASH = 2;
+	public final static int STATE_WIN = 3;
+	public final static int STATE_LOSS = 4;
+
 	private SparseArray<PointF> mActivePointers;
 	Paint paint = new Paint();
 	float W, H;
 	float ballX, ballY;
 	int x, y;
-	int draw = 1;
+	int draw = STATE_PLAY;
 	float mazeX, mazeY, mazeXf, mazeYf;
 	float unit;
 	int dirX, dirY;
@@ -31,14 +35,13 @@ public class ChallengeModeBeta extends View {
 	float destX, destY, destfX, destfY;
 	float iniX, iniY;
 	float rX, rY, retDestX, retDestY;
-	int pcSpeed = 20;
-	int key_count, key_score = 0;
+	int pcSpeed = 30;
 
-	public ChallengeModeBeta(Context context) {
+	public ChallengeModeEasy(Context context) {
 		super(context);
 	}
 
-	public ChallengeModeBeta(Context context, float width, float height,
+	public ChallengeModeEasy(Context context, float width, float height,
 			float unit, int x, int y) {
 		super(context);
 		mActivePointers = new SparseArray<PointF>();
@@ -63,7 +66,6 @@ public class ChallengeModeBeta extends View {
 		lpf = new LongestPathFinder(maze, x, y);
 		retPath = lpf.getLongestPath();
 		keys = lpf.getEndPoints();
-		key_count = keys.getSize();
 		destX = retPath.topX();
 		destY = retPath.topY();
 		rX = retDestX = destX;
@@ -72,40 +74,93 @@ public class ChallengeModeBeta extends View {
 
 	public void onDraw(Canvas canvas) {
 		switch (draw) {
-		case 1:
+		case STATE_PLAY:
+			paintMaze(canvas);
 			paintBackgroundColor(canvas);
+
 			paintControlLine(canvas);
 			paintPointers(canvas);
-			paintMaze(canvas);
+
 			paintPcDestination(canvas);
 			paintDestination(canvas);
+
 			paintBall(canvas);
 			paintPcBall(canvas);
 			break;
-		case 2:
+		case STATE_CRASH:
 			paintCrash(canvas);
 			break;
-		case 3:
-			paintPcWinner(canvas);
-			break;
-		case 4:
+		case STATE_WIN:
 			paintWinner(canvas);
+			break;
+		case STATE_LOSS:
+			paintLoss(canvas);
 			break;
 		}
 	}
 
-	private void paintPointers(Canvas canvas) {
-		paint.setColor(Color.GRAY);
-		// left control-line pointer
-		canvas.drawCircle(mazeX - 5 * unit, ballY, unit / 2, paint);
-		// bottom control-line pointer
-		canvas.drawCircle(ballX, mazeYf + 5 * unit, unit / 2, paint);
+	public void paintMaze(Canvas canvas) {
+		paint.setColor(Color.rgb(0, 162, 232));
+		float px = mazeX, py = mazeY;
+		paint.setStrokeWidth(unit);
+		for (int i = 0; i < y; i++) {
+			// print horizontal lines
+			for (int j = 0; j < x; j++) {
+				if ((maze[j][i] & 1) == 0) {
+					if (checkCollision(px, py, px + 5 * unit, py + unit))
+						draw = STATE_CRASH;
+					canvas.drawRect(px, py, px + 5 * unit, py + unit, paint);
+					px += 5 * unit;
+				} else {
+					if (checkCollision(px, py, px + unit, py + unit))
+						draw = STATE_CRASH;
+					canvas.drawRect(px, py, px + unit, py + unit, paint);
+					px += 5 * unit;
+				}
+			}
+			canvas.drawRect(px, py, px + unit, py + unit, paint);
+			px = mazeX;
+			// print vertical lines
+			for (int j = 0; j < x; j++) {
+				if ((maze[j][i] & 8) == 0) {
+					if (checkCollision(px, py, px + unit, py + 5 * unit))
+						draw = STATE_CRASH;
+					canvas.drawRect(px, py, px + unit, py + 5 * unit, paint);
+					px += 5 * unit;
+				} else {
+					px += 5 * unit;
+				}
+			}
+			if (checkCollision(px, py, px + unit, py + 5 * unit))
+				draw = STATE_CRASH;
+			canvas.drawRect(px, py, px + unit, py + 5 * unit, paint);
+			py += 5 * unit;
+			px = mazeX;
+		}
+		// print bottom line
+		if (checkCollision(px, py, px + 5 * x * unit + unit, py + unit))
+			draw = STATE_CRASH;
+		canvas.drawRect(px, py, px + 5 * x * unit + unit, py + unit, paint);
+	}
+
+	public boolean checkCollision(float px, float py, float pxf, float pyf) {
+		if (ballX > px - unit / 2 && ballX < pxf + unit / 2
+				&& ballY > py - unit / 2 && ballY < py + unit)
+			return true;
+		return false;
+	}
+
+	private void paintBackgroundColor(Canvas canvas) {
+		paint.setColor(Color.rgb(0, 162, 232));
+		canvas.drawRect(0, 0, mazeX, H, paint);
+		canvas.drawRect(0, 0, W, mazeY, paint);
+		canvas.drawRect(mazeXf, mazeY, W, H, paint);
+		canvas.drawRect(mazeX, mazeYf, W, H, paint);
 	}
 
 	private void paintControlLine(Canvas canvas) {
 		paint.setColor(Color.rgb(153, 217, 234));
 		paint.setStrokeWidth(unit);
-
 		// left control line
 		canvas.drawLine(mazeX - 5 * unit, mazeY + unit, mazeX - 5 * unit,
 				mazeYf - unit, paint);
@@ -114,31 +169,12 @@ public class ChallengeModeBeta extends View {
 				+ 5 * unit, paint);
 	}
 
-	private void paintCrash(Canvas canvas) {
-		paint.setColor(Color.rgb(255, 145, 70));
-		canvas.drawRect(0, 0, W, H, paint);
-		paint.setColor(Color.rgb(255, 198, 159));
-		paint.setTextSize(6 * unit);
-		paint.setTypeface(Typeface.DEFAULT_BOLD);
-		canvas.drawText("Nasty bump!", (W - 11 * 3 * unit) / 2, H / 2, paint);
-	}
-
-	private void paintPcWinner(Canvas canvas) {
-		paint.setColor(Color.rgb(154, 137, 211));
-		canvas.drawRect(0, 0, W, H, paint);
-		paint.setColor(Color.rgb(243, 251, 221));
-		paint.setTextSize(6 * unit);
-		paint.setTypeface(Typeface.DEFAULT_BOLD);
-		canvas.drawText("You Lost!", (W - 9 * 3 * unit) / 2, H / 2, paint);
-	}
-
-	private void paintWinner(Canvas canvas) {
-		paint.setColor(Color.rgb(189, 233, 59));
-		canvas.drawRect(0, 0, W, H, paint);
-		paint.setColor(Color.rgb(235, 249, 193));
-		paint.setTextSize(6 * unit);
-		paint.setTypeface(Typeface.DEFAULT_BOLD);
-		canvas.drawText("You Won!", (W - 8 * 3 * unit) / 2, H / 2, paint);
+	private void paintPointers(Canvas canvas) {
+		paint.setColor(Color.GRAY);
+		// left control-line pointer
+		canvas.drawCircle(mazeX - 5 * unit, ballY, unit / 2, paint);
+		// bottom control-line pointer
+		canvas.drawCircle(ballX, mazeYf + 5 * unit, unit / 2, paint);
 	}
 
 	private void paintPcDestination(Canvas canvas) {
@@ -153,11 +189,11 @@ public class ChallengeModeBeta extends View {
 	}
 
 	private void paintBall(Canvas canvas) {
-		if (ballX < mazeX + 5 * unit * destX + 3 * unit + 10
-				&& ballX > mazeX + 5 * unit * destX + 3 * unit - 10
-				&& ballY < mazeY + 5 * unit * destY + 3 * unit + 10
-				&& ballY > mazeY + 5 * unit * destY + 3 * unit - 10) {
-			draw = 4;
+		if (ballX < mazeX + 5 * unit * destX + 4 * unit
+				&& ballX > mazeX + 5 * unit * destX + 2 * unit
+				&& ballY < mazeY + 5 * unit * destY + 4 * unit
+				&& ballY > mazeY + 5 * unit * destY + 2 * unit) {
+			draw = STATE_WIN;
 		}
 		paint.setColor(Color.GRAY);
 		canvas.drawCircle(ballX, ballY, unit, paint);
@@ -167,7 +203,7 @@ public class ChallengeModeBeta extends View {
 		if (rX == retDestX && rY == retDestY) {
 			retPath.pop();
 			if (retPath.isEmpty())
-				draw = 3;
+				draw = STATE_LOSS;
 			else {
 				retDestX = retPath.topX();
 				retDestY = retPath.topY();
@@ -185,63 +221,31 @@ public class ChallengeModeBeta extends View {
 		invalidate();
 	}
 
-	private void paintBackgroundColor(Canvas canvas) {
-		paint.setColor(Color.rgb(0, 162, 232));
-		canvas.drawRect(0, 0, mazeX, H, paint);
-		canvas.drawRect(0, 0, W, mazeY, paint);
-		canvas.drawRect(mazeXf, mazeY, W, H, paint);
-		canvas.drawRect(mazeX, mazeYf, W, H, paint);
+	private void paintCrash(Canvas canvas) {
+		paint.setColor(Color.rgb(255, 145, 70));
+		canvas.drawRect(0, 0, W, H, paint);
+		paint.setColor(Color.WHITE);
+		paint.setTextSize(6 * unit);
+		paint.setTypeface(Typeface.DEFAULT_BOLD);
+		canvas.drawText("Nasty bump!", (W - 11 * 3 * unit) / 2, H / 2, paint);
 	}
 
-	public void paintMaze(Canvas canvas) {
-		paint.setColor(Color.rgb(0, 162, 232));
-		float px = mazeX, py = mazeY;
-		paint.setStrokeWidth(unit);
-		for (int i = 0; i < y; i++) {
-			// print horizontal lines
-			for (int j = 0; j < x; j++) {
-				if ((maze[j][i] & 1) == 0) {
-					if (checkCollision(px, py, px + 5 * unit, py + unit))
-						draw = 2;
-					canvas.drawRect(px, py, px + 5 * unit, py + unit, paint);
-					px += 5 * unit;
-				} else {
-					if (checkCollision(px, py, px + unit, py + unit))
-						draw = 2;
-					canvas.drawRect(px, py, px + unit, py + unit, paint);
-					px += 5 * unit;
-				}
-			}
-			canvas.drawRect(px, py, px + unit, py + unit, paint);
-			px = mazeX;
-			// print vertical lines
-			for (int j = 0; j < x; j++) {
-				if ((maze[j][i] & 8) == 0) {
-					if (checkCollision(px, py, px + unit, py + 5 * unit))
-						draw = 2;
-					canvas.drawRect(px, py, px + unit, py + 5 * unit, paint);
-					px += 5 * unit;
-				} else {
-					px += 5 * unit;
-				}
-			}
-			if (checkCollision(px, py, px + unit, py + 5 * unit))
-				draw = 2;
-			canvas.drawRect(px, py, px + unit, py + 5 * unit, paint);
-			py += 5 * unit;
-			px = mazeX;
-		}
-		// print bottom line
-		if (checkCollision(px, py, px + 5 * x * unit + unit, py + unit))
-			draw = 2;
-		canvas.drawRect(px, py, px + 5 * x * unit + unit, py + unit, paint);
+	private void paintWinner(Canvas canvas) {
+		paint.setColor(Color.rgb(189, 233, 59));
+		canvas.drawRect(0, 0, W, H, paint);
+		paint.setColor(Color.WHITE);
+		paint.setTextSize(6 * unit);
+		paint.setTypeface(Typeface.DEFAULT_BOLD);
+		canvas.drawText("You Won!", (W - 8 * 3 * unit) / 2, H / 2, paint);
 	}
 
-	public boolean checkCollision(float px, float py, float f, float g) {
-		float ballR = ballX + 2, ballL = ballX - 2, ballT = ballY - 2, ballB = ballY + 2;
-		if (ballR > px && ballL < f && ballB > py && ballT < g)
-			return true;
-		return false;
+	private void paintLoss(Canvas canvas) {
+		paint.setColor(Color.rgb(154, 137, 211));
+		canvas.drawRect(0, 0, W, H, paint);
+		paint.setColor(Color.WHITE);
+		paint.setTextSize(6 * unit);
+		paint.setTypeface(Typeface.DEFAULT_BOLD);
+		canvas.drawText("You Lost!", (W - 9 * 3 * unit) / 2, H / 2, paint);
 	}
 
 	public boolean onTouchEvent(MotionEvent event) {

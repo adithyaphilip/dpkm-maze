@@ -12,10 +12,11 @@ import android.view.View;
 
 import com.dpkabe.maze.mazeutils.MazeGenerator;
 
-public class PracticeMode extends View {
+public class ChallengeModeNormal extends View {
 	public final static int STATE_PLAY = 1;
 	public final static int STATE_CRASH = 2;
 	public final static int STATE_WIN = 3;
+	public final static int STATE_LOSS = 4;
 
 	private SparseArray<PointF> mActivePointers;
 	Paint paint = new Paint();
@@ -26,6 +27,7 @@ public class PracticeMode extends View {
 	float mazeX, mazeY, mazeXf, mazeYf;
 	float unit;
 	int dirX, dirY;
+	int delay = 0;
 	MazeGenerator mg;
 	int[][] maze;
 	LongestPathFinder lpf;
@@ -33,21 +35,14 @@ public class PracticeMode extends View {
 	float destX, destY, destfX, destfY;
 	float iniX, iniY;
 	float rX, rY, retDestX, retDestY;
-	int key_count = 1;
-	int key_score = 0;
-	int life_score = 1;
-	int life_number = 0;
-	float restoreX = 0, restoreY = 0;
-	float teleX, teleY;
-	boolean teleport = false, touch = true;
-	int delay = 20;
+	int pcSpeed = 20;
 
-	public PracticeMode(Context context) {
+	public ChallengeModeNormal(Context context) {
 		super(context);
 	}
 
-	public PracticeMode(Context context, float width, float height, float unit,
-			int x, int y) {
+	public ChallengeModeNormal(Context context, float width, float height,
+			float unit, int x, int y) {
 		super(context);
 		mActivePointers = new SparseArray<PointF>();
 		this.unit = unit;
@@ -59,8 +54,10 @@ public class PracticeMode extends View {
 		mazeY = 2 * unit;
 		mazeXf = mazeX + unit * 5 * x + unit;
 		mazeYf = mazeY + unit * 5 * y + unit;
-		iniX = ballX = mazeX + 3 * unit;
-		iniY = ballY = mazeY + 3 * unit;
+		ballX = mazeX + 3 * unit;
+		ballY = mazeY + 3 * unit;
+		iniX = ballX;
+		iniY = ballY;
 		destfX = mazeX + 5 * unit * destX + 3 * unit;
 		destfY = mazeY + 5 * (unit + 2) * destY + 3 * unit;
 
@@ -69,14 +66,12 @@ public class PracticeMode extends View {
 		lpf = new LongestPathFinder(maze, x, y);
 		retPath = lpf.getLongestPath();
 		keys = lpf.getEndPoints();
-		key_count = keys.getSize();
 		destX = retPath.topX();
 		destY = retPath.topY();
 		rX = retDestX = destX;
 		rY = retDestY = destY;
 	}
 
-	// super class method called when invalidate(), it renders the graphics
 	public void onDraw(Canvas canvas) {
 		switch (draw) {
 		case STATE_PLAY:
@@ -86,36 +81,28 @@ public class PracticeMode extends View {
 			paintControlLine(canvas);
 			paintPointers(canvas);
 
+			paintPcDestination(canvas);
 			paintDestination(canvas);
-			paintKeys(canvas);
 
 			paintBall(canvas);
+			paintPcBall(canvas);
 			break;
 		case STATE_CRASH:
-			paintLoading(canvas);
-			if (life_score != 1)
-				paintCrash(canvas);
-			else {
-				life_score = -1 * life_number++;
-				while (delay > 0) {
-					delay--;
-					touch = false;
-				}
-				touch = true;
-				delay = 20;
-				restoreBall();
-			}
+			paintCrash(canvas);
 			break;
 		case STATE_WIN:
-			nextMaze(canvas);
+			paintWinner(canvas);
+			break;
+		case STATE_LOSS:
+			paintLoss(canvas);
 			break;
 		}
 	}
 
 	public void paintMaze(Canvas canvas) {
 		paint.setColor(Color.rgb(0, 162, 232));
-		paint.setStrokeWidth(unit);
 		float px = mazeX, py = mazeY;
+		paint.setStrokeWidth(unit);
 		for (int i = 0; i < y; i++) {
 			// print horizontal lines
 			for (int j = 0; j < x; j++) {
@@ -163,48 +150,36 @@ public class PracticeMode extends View {
 		return false;
 	}
 
-	// paints the non-maze part of screen
 	private void paintBackgroundColor(Canvas canvas) {
 		paint.setColor(Color.rgb(0, 162, 232));
 		canvas.drawRect(0, 0, mazeX, H, paint);
 		canvas.drawRect(0, 0, W, mazeY, paint);
 		canvas.drawRect(mazeXf, mazeY, W, H, paint);
 		canvas.drawRect(mazeX, mazeYf, W, H, paint);
-		paint.setColor(Color.WHITE);
-		paint.setTextSize(3 * unit);
-		paint.setTypeface(Typeface.DEFAULT_BOLD);
-		canvas.drawText("Score:", W - 10 * unit, H / 4 - 4 * unit, paint);
-		canvas.drawText(Integer.toString(key_score), W - 7 * unit, H / 4, paint);
-		canvas.drawText("Lives:", W - 10 * unit, H / 2, paint);
-		canvas.drawText(Integer.toString(life_score), W - 7 * unit, H / 2 + 4
-				* unit, paint);
-		// Teleport location
-		if (teleport) {
-			paint.setColor(Color.GRAY);
-			canvas.drawCircle(teleX, teleY, unit, paint);
-		}
 	}
 
-	// paints line on which pointer is placed
 	private void paintControlLine(Canvas canvas) {
 		paint.setColor(Color.rgb(153, 217, 234));
 		paint.setStrokeWidth(unit);
-
 		// left control line
-		canvas.drawLine(mazeX - 3 * unit, mazeY + unit, mazeX - 3 * unit,
+		canvas.drawLine(mazeX - 5 * unit, mazeY + unit, mazeX - 5 * unit,
 				mazeYf - unit, paint);
 		// bottom control line
-		canvas.drawLine(mazeX + unit, mazeYf + 3 * unit, mazeXf - unit, mazeYf
-				+ 3 * unit, paint);
+		canvas.drawLine(mazeX + unit, mazeYf + 5 * unit, mazeXf - unit, mazeYf
+				+ 5 * unit, paint);
 	}
 
-	// paints the pointers which show position of player
 	private void paintPointers(Canvas canvas) {
 		paint.setColor(Color.GRAY);
 		// left control-line pointer
-		canvas.drawCircle(mazeX - 3 * unit, ballY, unit / 2, paint);
+		canvas.drawCircle(mazeX - 5 * unit, ballY, unit / 2, paint);
 		// bottom control-line pointer
-		canvas.drawCircle(ballX, mazeYf + 3 * unit, unit / 2, paint);
+		canvas.drawCircle(ballX, mazeYf + 5 * unit, unit / 2, paint);
+	}
+
+	private void paintPcDestination(Canvas canvas) {
+		paint.setColor(Color.rgb(255, 168, 111));
+		canvas.drawCircle(iniX, iniY, unit, paint);
 	}
 
 	private void paintDestination(Canvas canvas) {
@@ -213,72 +188,36 @@ public class PracticeMode extends View {
 				* destY + 3 * unit, unit, paint);
 	}
 
-	// method to paint the remaining keys at end-points
-	private void paintKeys(Canvas canvas) {
-		keys = checkKeyStatus(keys);
-		Node key = keys.top();
-		paint.setColor(Color.rgb(255, 208, 47));
-		while (key != null) {
-			canvas.drawCircle(mazeX + 5 * unit * key.getX() + 3 * unit, mazeY
-					+ 5 * unit * key.getY() + 3 * unit, unit, paint);
-			key = key.getNext();
-		}
-	}
-
-	// checks if the ball collides with any of the remaining-keys
-	private Stack checkKeyStatus(Stack keys) {
-		Node key = keys.top();
-		while (key != null) {
-			if (ballX < mazeX + 5 * unit * key.getX() + 5 * unit
-					&& ballX > mazeX + 5 * unit * key.getX() + 1 * unit
-					&& ballY < mazeY + 5 * unit * key.getY() + 5 * unit
-					&& ballY > mazeY + 5 * unit * key.getY() + 1 * unit) {
-				--key_count;
-				if (life_score != 1)
-					++life_score;
-				else {
-					++key_score;
-				}
-				restoreX = key.getX();
-				restoreY = key.getY();
-				if (key.getNext() == null) {
-					keys.removeLastNode();
-				} else {
-					key.removeCurrentNode();
-				}
-			}
-			key = key.getNext();
-		}
-		return keys;
-	}
-
 	private void paintBall(Canvas canvas) {
 		if (ballX < mazeX + 5 * unit * destX + 4 * unit
 				&& ballX > mazeX + 5 * unit * destX + 2 * unit
 				&& ballY < mazeY + 5 * unit * destY + 4 * unit
-				&& ballY > mazeY + 5 * unit * destY + 2 * unit
-				&& key_count == 0) {
-			restoreX = destX;
-			restoreY = destY;
+				&& ballY > mazeY + 5 * unit * destY + 2 * unit) {
 			draw = STATE_WIN;
 		}
 		paint.setColor(Color.GRAY);
 		canvas.drawCircle(ballX, ballY, unit, paint);
 	}
 
-	private void paintLoading(Canvas canvas) {
-		paint.setColor(Color.rgb(0, 162, 232));
-		canvas.drawRect(0, 0, W, H, paint);
-		paint.setColor(Color.WHITE);
-		paint.setTextSize(6 * unit);
-		paint.setTypeface(Typeface.DEFAULT_BOLD);
-		canvas.drawText("Loading...", (W - 10 * 3 * unit) / 2, H / 2, paint);
-	}
-
-	private void restoreBall() {
-		draw = STATE_PLAY;
-		ballX = mazeX + 5 * unit * restoreX + 3 * unit;
-		ballY = mazeY + 5 * unit * restoreY + 3 * unit;
+	private void paintPcBall(Canvas canvas) {
+		if (rX == retDestX && rY == retDestY) {
+			retPath.pop();
+			if (retPath.isEmpty())
+				draw = STATE_LOSS;
+			else {
+				retDestX = retPath.topX();
+				retDestY = retPath.topY();
+			}
+		}
+		delay++;
+		if (delay == pcSpeed) {
+			rX = retDestX;
+			rY = retDestY;
+			delay = 0;
+		}
+		paint.setColor(Color.rgb(255, 127, 39));
+		canvas.drawCircle(mazeX + 5 * unit * rX + 3 * unit, mazeY + 5 * unit
+				* rY + 3 * unit, unit, paint);
 		invalidate();
 	}
 
@@ -288,30 +227,25 @@ public class PracticeMode extends View {
 		paint.setColor(Color.WHITE);
 		paint.setTextSize(6 * unit);
 		paint.setTypeface(Typeface.DEFAULT_BOLD);
-		canvas.drawText("Nasty bump! score: " + Integer.toString(key_score),
-				(W - 20 * 3 * unit) / 2, H / 2, paint);
+		canvas.drawText("Nasty bump!", (W - 11 * 3 * unit) / 2, H / 2, paint);
 	}
 
-	private void nextMaze(Canvas canvas) {
-		draw = STATE_PLAY;
-		paintLoading(canvas);
-		createMaze();
+	private void paintWinner(Canvas canvas) {
+		paint.setColor(Color.rgb(189, 233, 59));
+		canvas.drawRect(0, 0, W, H, paint);
+		paint.setColor(Color.WHITE);
+		paint.setTextSize(6 * unit);
+		paint.setTypeface(Typeface.DEFAULT_BOLD);
+		canvas.drawText("You Won!", (W - 8 * 3 * unit) / 2, H / 2, paint);
 	}
 
-	private void createMaze() {
-		mg = new MazeGenerator(x, y);
-		maze = mg.getMaze();
-		lpf = new LongestPathFinder(maze, x, y);
-		retPath = lpf.getLongestPath();
-		keys = lpf.getEndPoints();
-		keys.push(0, 0);
-		key_count = keys.getSize();
-		destX = retPath.topX();
-		destY = retPath.topY();
-		rX = retDestX = destX;
-		rY = retDestY = destY;
-		teleX = ballX;
-		teleY = ballY;
+	private void paintLoss(Canvas canvas) {
+		paint.setColor(Color.rgb(154, 137, 211));
+		canvas.drawRect(0, 0, W, H, paint);
+		paint.setColor(Color.WHITE);
+		paint.setTextSize(6 * unit);
+		paint.setTypeface(Typeface.DEFAULT_BOLD);
+		canvas.drawText("You Lost!", (W - 9 * 3 * unit) / 2, H / 2, paint);
 	}
 
 	public boolean onTouchEvent(MotionEvent event) {
@@ -324,17 +258,8 @@ public class PracticeMode extends View {
 			if (event.getX() > (ballX - 3 * unit)
 					&& event.getX() < (ballX + 3 * unit)
 					&& event.getY() > (ballY - 3 * unit)
-					&& event.getY() < (ballY + 3 * unit)) {
-				teleport = !teleport;
-				if (teleport) {
-					teleX = ballX;
-					teleY = ballY;
-				} else {
-					ballX = teleX;
-					ballY = teleY;
-				}
+					&& event.getY() < (ballY + 3 * unit))
 				break;
-			}
 
 			if (event.getX() > ballX - 1.5 * unit
 					&& event.getX() < ballX + 1.5 * unit
@@ -354,17 +279,15 @@ public class PracticeMode extends View {
 			break;
 		}
 		case MotionEvent.ACTION_MOVE: {
-			if (touch) {
-				for (int size = event.getPointerCount(), i = 0; i < size; i++) {
-					PointF point = mActivePointers.get(event.getPointerId(i));
-					if (point != null) {
-						if (event.getX(i) > ballX - 1.5 * unit
-								&& event.getX(i) < ballX + 1.5 * unit)
-							ballX = event.getX(i);
-						if (event.getY(i) > ballY - 1.5 * unit
-								&& event.getY(i) < ballY + 1.5 * unit)
-							ballY = event.getY(i);
-					}
+			for (int size = event.getPointerCount(), i = 0; i < size; i++) {
+				PointF point = mActivePointers.get(event.getPointerId(i));
+				if (point != null) {
+					if (event.getX(i) > ballX - 1.5 * unit
+							&& event.getX(i) < ballX + 1.5 * unit)
+						ballX = event.getX(i);
+					if (event.getY(i) > ballY - 1.5 * unit
+							&& event.getY(i) < ballY + 1.5 * unit)
+						ballY = event.getY(i);
 				}
 			}
 			break;
