@@ -1,29 +1,29 @@
 package com.dpkabe.maze.activity;
 
-import com.dpkabe.maze.view.ChallengeModeBeta;
+import com.example.maze.R;
 
 import android.app.Activity;
-import android.graphics.Color;
-import android.graphics.Point;
+import android.content.Intent;
 import android.os.Bundle;
-import android.view.Display;
-import android.view.Menu;
+import android.view.View;
 
 public class ChallengeActivity extends Activity {
-	ChallengeModeBeta drawView;
-
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		Display display = getWindowManager().getDefaultDisplay();
-		Point size = new Point();
-		display.getSize(size);
-		int width = size.x;
-		int height = size.y;
-		int x = 16, y = 10;
-		float unit = (float) ((height * 0.8) / (y * 5));
-		drawView = new ChallengeModeBeta(this, width, height, unit, x, y);
-		drawView.setBackgroundColor(Color.WHITE);
-		setContentView(drawView);
-	}
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.challenge_launcher);
+    }
+	//xml onClick functions
+    public void onEasyClick(View v){
+    	Intent i = new Intent(this, ChallengeEasyActivity.class);
+    	startActivity(i);
+    }
+    public void onNormalClick(View v){
+    	Intent i = new Intent(this, ChallengeNormalActivity.class);
+    	startActivity(i);
+    }
+    public void onHardClick(View v){
+    	Intent i = new Intent(this, ChallengeHardActivity.class);
+    	startActivity(i);
+    }
 }

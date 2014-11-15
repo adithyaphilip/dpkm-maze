@@ -5,25 +5,20 @@
     android:gravity="center"
     android:layout_margin="10dp"
     android:orientation="vertical"
-    tools:context=".MainActivity" >
+    tools:context=".ChallengeActivity" >
 	<Button 
-	    android:text="Practice"
-	    android:onClick="onPracticeClick" 
+	    android:text="Easy"
+	    android:onClick="onEasyClick" 
 	    android:layout_width="match_parent"
    		android:layout_height="wrap_content"/>
 	<Button 
-	    android:text="Challenge"
-	    android:onClick="onChallengeClick"
+	    android:text="Normal"
+	    android:onClick="onNormalClick"
 	    android:layout_width="match_parent"
    		android:layout_height="wrap_content"/>	
 	<Button
-	    android:text="2-Player"
-	    android:onClick="on2PlayerClick"
+	    android:text="Hard"
+	    android:onClick="onHardClick"
 	    android:layout_height="wrap_content"
 	    android:layout_width="match_parent" />
-	<Button
-	    android:text="Exit"
-	    android:onClick="onExitClick"
-	    android:layout_height="wrap_content"
-	    android:layout_width="match_parent"/>
 </LinearLayout>
