@@ -145,7 +145,7 @@ public class ChallengeModeEasy extends View {
 
 	public boolean checkCollision(float px, float py, float pxf, float pyf) {
 		if (ballX > px - unit / 2 && ballX < pxf + unit / 2
-				&& ballY > py - unit / 2 && ballY < py + unit)
+				&& ballY > py - unit / 2 && ballY < pyf + unit)
 			return true;
 		return false;
 	}
