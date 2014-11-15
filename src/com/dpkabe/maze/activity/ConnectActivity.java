@@ -36,7 +36,7 @@ public class ConnectActivity extends Activity {
 		public static final int MESSAGE_TOAST = 5;
 
 		// Key names received from the BluetoothChatService Handler
-		public static final String DEVICE_NAME = "device_name";
+			public static final String DEVICE_NAME = "device_name";
 		public static final String TOAST = "toast";
 
 		// Intent request codes
@@ -93,6 +93,8 @@ public class ConnectActivity extends Activity {
 	@Override
 	public synchronized void onResume() {
 		super.onResume();
+		stopService(new Intent(this, BluetoothChatService.class));
+		startService(new Intent(this, BluetoothChatService.class));
 		generateOwnMaze();
 		if (D)
 			Log.e(TAG, "+ ON RESUME +");

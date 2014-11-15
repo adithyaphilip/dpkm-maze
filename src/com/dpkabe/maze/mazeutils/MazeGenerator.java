@@ -26,7 +26,7 @@ public class MazeGenerator {
 				maze[cx][cy] |= dir.bit;
 				maze[nx][ny] |= dir.opposite.bit;
 				generateMaze(nx, ny);
-			}		
+			}
 		}		
 	}
  

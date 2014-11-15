@@ -1,13 +1,12 @@
 package com.dpkabe.maze.activity;
 
-import com.dpkabe.maze.view.DrawView;
-import com.example.maze.R;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
 import android.view.View;
+
+import com.dpkabe.maze.view.DrawView;
+import com.example.maze.R;
 public class MainActivity extends Activity {
 
 	DrawView drawView;
@@ -18,21 +17,25 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
     }
      
-    public void onPlayClick(View v){
-    	Intent i = new Intent(this, MazeActivity2.class);
+    //xml onClick functions
+    
+    public void onChallengeClick(View v){
+    	Intent i = new Intent(this, ChallengeActivity.class);
     	startActivity(i);
     }
     
-    public void onExitClick(View v){
-    	super.onBackPressed();
+    public void onPracticeClick(View v){
+    	Intent i = new Intent(this, PracticeActivity.class);
+    	startActivity(i);
     }
     public void on2PlayerClick(View v){
     	Intent i = new Intent(this, ConnectActivity.class);
     	startActivity(i);
     }
-      @Override
-      public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-      }
+    public void onAchievementsClick(View v){
+    	//when we get achievements up
+    }
+    public void onExitClick(View v){
+    	super.onBackPressed();
+    }
 } 

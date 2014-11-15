@@ -9,14 +9,6 @@ package com.example.maze;
 
 public final class R {
     public static final class attr {
-        /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
-or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
-         */
-        public static final int buttonBarButtonStyle=0x7f010001;
-        /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
-or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
-         */
-        public static final int buttonBarStyle=0x7f010000;
     }
     public static final class color {
         public static final int AliceBlue=0x7f04003c;
@@ -183,6 +175,11 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
     public static final class dimen {
         /**  Default screen margins, per the Android Design guidelines. 
 
+         Example customization of dimensions originally defined in res/values/dimens.xml
+         (such as screen margins) for screens with more than 820dp of available width. This
+         would include 7" and 10" devices in landscape (~960dp and ~1280dp respectively).
+    
+
          Customize dimensions originally defined in res/values/dimens.xml (such as
          screen margins) for sw720dp devices (e.g. 10" tablets) in landscape here.
     
@@ -194,24 +191,26 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int ic_launcher=0x7f020000;
     }
     public static final class id {
-        public static final int button_scan=0x7f090004;
-        public static final int button_send=0x7f090007;
-        public static final int connect_scan=0x7f090008;
-        public static final int discoverable=0x7f090009;
-        public static final int edit_text_out=0x7f090006;
-        public static final int in=0x7f090005;
-        public static final int new_devices=0x7f090003;
-        public static final int paired_devices=0x7f090001;
-        public static final int title_new_devices=0x7f090002;
-        public static final int title_paired_devices=0x7f090000;
+        public static final int button_scan=0x7f090005;
+        public static final int button_send=0x7f090008;
+        public static final int connect_scan=0x7f090009;
+        public static final int container=0x7f090000;
+        public static final int discoverable=0x7f09000a;
+        public static final int edit_text_out=0x7f090007;
+        public static final int in=0x7f090006;
+        public static final int new_devices=0x7f090004;
+        public static final int paired_devices=0x7f090002;
+        public static final int title_new_devices=0x7f090003;
+        public static final int title_paired_devices=0x7f090001;
     }
     public static final class layout {
         public static final int activity_connect=0x7f030000;
-        public static final int activity_main=0x7f030001;
-        public static final int device_list=0x7f030002;
-        public static final int device_name=0x7f030003;
-        public static final int main=0x7f030004;
-        public static final int message=0x7f030005;
+        public static final int activity_dual_player=0x7f030001;
+        public static final int activity_main=0x7f030002;
+        public static final int device_list=0x7f030003;
+        public static final int device_name=0x7f030004;
+        public static final int main=0x7f030005;
+        public static final int message=0x7f030006;
     }
     public static final class menu {
         public static final int main=0x7f080000;
@@ -235,6 +234,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int scanning=0x7f060009;
         public static final int select_device=0x7f06000a;
         public static final int send=0x7f060003;
+        public static final int title_activity_dual_player=0x7f060012;
         public static final int title_connected_to=0x7f060007;
         public static final int title_connecting=0x7f060006;
         public static final int title_not_connected=0x7f060008;
@@ -269,46 +269,4 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
          */
         public static final int AppTheme=0x7f070001;
     }
-    public static final class styleable {
-        /** 
-         Declare custom theme attributes that allow changing which styles are
-         used for button bars depending on the API level.
-         ?android:attr/buttonBarStyle is new as of API 11 so this is
-         necessary to support previous API levels.
-    
-           <p>Includes the following attributes:</p>
-           <table>
-           <colgroup align="left" />
-           <colgroup align="left" />
-           <tr><th>Attribute</th><th>Description</th></tr>
-           <tr><td><code>{@link #ButtonBarContainerTheme_buttonBarButtonStyle com.example.maze:buttonBarButtonStyle}</code></td><td></td></tr>
-           <tr><td><code>{@link #ButtonBarContainerTheme_buttonBarStyle com.example.maze:buttonBarStyle}</code></td><td></td></tr>
-           </table>
-           @see #ButtonBarContainerTheme_buttonBarButtonStyle
-           @see #ButtonBarContainerTheme_buttonBarStyle
-         */
-        public static final int[] ButtonBarContainerTheme = {
-            0x7f010000, 0x7f010001
-        };
-        /**
-          <p>This symbol is the offset where the {@link com.example.maze.R.attr#buttonBarButtonStyle}
-          attribute's value can be found in the {@link #ButtonBarContainerTheme} array.
-
-
-          <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
-or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
-          @attr name com.example.maze:buttonBarButtonStyle
-        */
-        public static final int ButtonBarContainerTheme_buttonBarButtonStyle = 1;
-        /**
-          <p>This symbol is the offset where the {@link com.example.maze.R.attr#buttonBarStyle}
-          attribute's value can be found in the {@link #ButtonBarContainerTheme} array.
-
-
-          <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
-or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
-          @attr name com.example.maze:buttonBarStyle
-        */
-        public static final int ButtonBarContainerTheme_buttonBarStyle = 0;
-    };
 }
