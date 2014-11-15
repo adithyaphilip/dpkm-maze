@@ -7,7 +7,6 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.view.Display;
-import android.view.Menu;
 
 public class PracticeActivity extends Activity {
 	PracticeMode drawView;

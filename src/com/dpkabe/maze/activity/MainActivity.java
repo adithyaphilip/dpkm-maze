@@ -18,14 +18,12 @@ public class MainActivity extends Activity {
     }
      
     //xml onClick functions
-    
-    public void onChallengeClick(View v){
-    	Intent i = new Intent(this, ChallengeActivity.class);
-    	startActivity(i);
-    }
-    
     public void onPracticeClick(View v){
     	Intent i = new Intent(this, PracticeActivity.class);
+    	startActivity(i);
+    }
+    public void onChallengeClick(View v){
+    	Intent i = new Intent(this, ChallengeActivity.class);
     	startActivity(i);
     }
     public void on2PlayerClick(View v){

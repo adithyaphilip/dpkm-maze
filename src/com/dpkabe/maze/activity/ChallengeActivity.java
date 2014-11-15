@@ -12,7 +12,6 @@ import android.view.Menu;
 public class ChallengeActivity extends Activity {
 	ChallengeModeBeta drawView;
 
-	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Display display = getWindowManager().getDefaultDisplay();

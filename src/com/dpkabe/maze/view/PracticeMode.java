@@ -116,7 +116,6 @@ public class PracticeMode extends View {
 			}
 			break;
 		case 3:
-			// paintWinner(canvas);
 			nextMaze(canvas);
 			break;
 		}
@@ -184,7 +183,7 @@ public class PracticeMode extends View {
 		canvas.drawRect(mazeXf, mazeY, W, H, paint);
 		canvas.drawRect(mazeX, mazeYf, W, H, paint);
 		paint.setColor(Color.rgb(153, 217, 234));
-		paint.setTextSize(30);
+		paint.setTextSize(3*unit);
 		paint.setTypeface(Typeface.DEFAULT_BOLD);
 		canvas.drawText("Score:", W - 10 * unit, H / 4 - 4 * unit, paint);
 		canvas.drawText(Integer.toString(key_score), W - 7 * unit, H / 4, paint);
@@ -307,7 +306,7 @@ public class PracticeMode extends View {
 			return true;
 		return false;
 	}
-
+	
 	public boolean onTouchEvent(MotionEvent event) {
 		int pointerIndex = event.getActionIndex();
 		int pointerId = event.getPointerId(pointerIndex);
@@ -371,6 +370,6 @@ public class PracticeMode extends View {
 		}
 		}
 		invalidate();
-		return false;
+		return true;
 	}
 }
