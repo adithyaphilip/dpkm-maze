@@ -128,6 +128,8 @@ public class ConnectActivity extends Activity {
 	@Override
 	public void onStop() {
 		super.onStop();
+		Intent i = new Intent(this,BluetoothChatService.class);
+		stopService(i);
 		if (D)
 			Log.e(TAG, "-- ON STOP --");
 	}
@@ -215,7 +217,11 @@ public class ConnectActivity extends Activity {
 					// construct a string from the valid bytes in the buffer
 					String readMessage = new String(readBuf, 0, msg.arg1);
 					Log.d("receivedString",readMessage);
-					mOppMaze = getOpponentMaze(readMessage);
+					try{
+						mOppMaze = getOpponentMaze(readMessage);
+					}catch(Exception e){
+						break;
+					}
 					startGame(mOwnMaze, mOppMaze);
 					Toast.makeText(ConnectActivity.this, readMessage, Toast.LENGTH_SHORT).show();
 					break;

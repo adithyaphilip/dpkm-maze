@@ -22,6 +22,7 @@ public class PracticeModeView extends View {
 	public final static int STATE_WIN = 3;
 	public final static int STATE_LOSS = 4;
 
+	int mClickCtr = 0;
 	private SparseArray<PointF> mActivePointers;
 	Paint paint = new Paint();
 	float W, H;
@@ -315,18 +316,18 @@ public class PracticeModeView extends View {
 			return true;
 		return false;
 	}
-
 	public boolean onTouchEvent(MotionEvent event) {
+		int pointerIndex = event.getActionIndex();
+		int pointerId = event.getPointerId(pointerIndex);
+		int maskedAction = event.getActionMasked();
 		switch(mGameState){
 		case STATE_CRASH:
 		case STATE_LOSS:
 		case STATE_WIN:
-			postQuitMessage();
+			if(mClickCtr++==2)
+				postQuitMessage();
 			return false;//don't handle touch event
 		}
-		int pointerIndex = event.getActionIndex();
-		int pointerId = event.getPointerId(pointerIndex);
-		int maskedAction = event.getActionMasked();
 		switch (maskedAction) {
 		case MotionEvent.ACTION_DOWN:
 		case MotionEvent.ACTION_POINTER_DOWN: {

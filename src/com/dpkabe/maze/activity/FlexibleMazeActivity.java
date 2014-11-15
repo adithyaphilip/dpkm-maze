@@ -1,7 +1,7 @@
 package com.dpkabe.maze.activity;
 
 import android.app.Activity;
-import android.bluetooth.BluetoothAdapter;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
@@ -184,7 +184,12 @@ public class FlexibleMazeActivity extends Activity {
 			return;
 		}
 	}
-
+	@Override
+	public void onStop(){
+		super.onStop();
+		Intent i = new Intent(this,BluetoothChatService.class);
+		stopService(i);
+	}
 	private void sendMessage(String message) {
 		// Check that we're actually connected before trying anything
 		if (mChatService.getState() != BluetoothChatService.STATE_CONNECTED) {
