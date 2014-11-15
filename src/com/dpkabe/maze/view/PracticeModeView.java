@@ -82,7 +82,7 @@ public class PracticeModeView extends View {
 	}
 
 	private float getUnitSize(float height, int rows) {
-		float unit = (float) ((height * 0.8) / (rows * 6));
+		float unit = (float) ((height * 0.8) / (rows * 5));
 		return unit;
 	}
 
