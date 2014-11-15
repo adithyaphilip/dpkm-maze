@@ -166,20 +166,23 @@ public class FlexibleMazeActivity extends Activity {
 	 */
 	public void decodeMessage(String message) {
 		String[] parts = message.split(":");
-		int what = Integer.parseInt(parts[0]);
-		switch (what) {
-		case MazeConstants.EVENT_CRASH:
-			onOpponentCrash();
-			break;
-		case MazeConstants.EVENT_WIN:
-			onOpponentWin();
-			break;
-		// no onOpponentLoss as his loss is determined only by your win
-		case MazeConstants.EVENT_POSITION_UPDATE:
-			updateOpponentPosition(Float.parseFloat(parts[1]),
-					Float.parseFloat(parts[2]));
+		try{//TODO TECHICAL DEBT! ENSURE NON-NUMBERS ARE NOT SENT!
+			int what = Integer.parseInt(parts[0]);switch (what) {
+			case MazeConstants.EVENT_CRASH:
+				onOpponentCrash();
+				break;
+			case MazeConstants.EVENT_WIN:
+				onOpponentWin();
+				break;
+			// no onOpponentLoss as his loss is determined only by your win
+			case MazeConstants.EVENT_POSITION_UPDATE:
+				updateOpponentPosition(Float.parseFloat(parts[1]),
+						Float.parseFloat(parts[2]));
+				break;
+			}
+		}catch(NumberFormatException e){
+			return;
 		}
-
 	}
 
 	private void sendMessage(String message) {
