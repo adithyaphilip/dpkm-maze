@@ -27,8 +27,9 @@ public class PracticeModeView extends View {
 	Paint paint = new Paint();
 	float W, H;
 	float ballX, ballY;
+	float mOppBallX, mOppBallY;
 	int mCols, mRows;
-	int draw = 1;
+	int mGameState = STATE_PLAY;
 	float mazeX, mazeY, mazeXf, mazeYf;
 	float unit;
 	int dirX, dirY;
@@ -88,12 +89,13 @@ public class PracticeModeView extends View {
 
 	// super class method called when invalidate(), it renders the graphics
 	public void onDraw(Canvas canvas) {
-		switch (draw) {
+		switch (mGameState) {
 		case STATE_PLAY:
-			postPosMessage();
+			postOwnPosition();
 			paintMaze(canvas);
 			paintDestination(canvas);
 			paintBall(canvas);
+			paintOpponentBall(canvas);
 			paintKeys(canvas);
 			paintBackgroundColor(canvas);
 			paintControlLine(canvas);
@@ -117,16 +119,20 @@ public class PracticeModeView extends View {
 	}
 
 	public void setDrawState(int state) {
-		draw = state;
+		mGameState = state;
 		invalidate();
 	}
-	private void postPosMessage(){
+	private void postOwnPosition(){
+		float xFract = (ballX-mazeX)/(mazeXf-mazeX);
+		float yFract = (ballY-mazeY)/(mazeYf-mazeY);
+		
 		Message msg = mHandler.obtainMessage();
 		msg.what = MazeConstants.EVENT_POSITION_UPDATE;
 		Bundle b = new Bundle();
-		Log.d("VIEW","pos"+ballX/(float)(mazeXf-mazeX)+":"+ballY/(float)(mazeYf-mazeY));
-		b.putFloat(MazeConstants.PositionUpdates.KEY_X_FRACTION, ballX/(float)(mazeXf-mazeX));		
-		b.putFloat(MazeConstants.PositionUpdates.KEY_Y_FRACTION, ballY/(float)(mazeYf-mazeY));	
+		Log.d("VIEW","pos"+xFract+":"+yFract);
+		b.putFloat(MazeConstants.PositionUpdates.KEY_X_FRACTION, xFract);		
+		b.putFloat(MazeConstants.PositionUpdates.KEY_Y_FRACTION, yFract);	
+		msg.setData(b);
 		mHandler.sendMessage(msg);
 	}
 	private void paintLoss(Canvas canvas) {
@@ -246,12 +252,15 @@ public class PracticeModeView extends View {
 				&& ballY < mazeY + 5 * unit * destY + 3 * unit + 10
 				&& ballY > mazeY + 5 * unit * destY + 3 * unit - 10
 				&& key_score == key_count) {
-			draw = 3;
+			mGameState = 3;
 		}
-		paint.setColor(Color.GRAY);
+		paint.setColor(Color.MAGENTA);
 		canvas.drawCircle(ballX, ballY, unit, paint);
 	}
-
+	private void paintOpponentBall(Canvas canvas){
+		paint.setColor(Color.GRAY);
+		canvas.drawCircle(mOppBallX, mOppBallY, unit, paint);
+	}
 	public void paintMaze(Canvas canvas) {
 		paint.setColor(Color.rgb(0, 162, 232));
 		paint.setStrokeWidth(5);
@@ -261,12 +270,12 @@ public class PracticeModeView extends View {
 			for (int j = 0; j < mCols; j++) {
 				if ((mMaze[j][i] & 1) == 0) {
 					if (checkCollision(px, py, px + 5 * unit, py + unit))
-						draw = 2;
+						mGameState = 2;
 					canvas.drawRect(px, py, px + 5 * unit, py + unit, paint);
 					px += 5 * unit;
 				} else {
 					if (checkCollision(px, py, px + unit, py + unit))
-						draw = 2;
+						mGameState = 2;
 					canvas.drawRect(px, py, px + unit, py + unit, paint);
 					px += 5 * unit;
 				}
@@ -277,7 +286,7 @@ public class PracticeModeView extends View {
 			for (int j = 0; j < mCols; j++) {
 				if ((mMaze[j][i] & 8) == 0) {
 					if (checkCollision(px, py, px + unit, py + 5 * unit))
-						draw = 2;
+						mGameState = 2;
 					canvas.drawRect(px, py, px + unit, py + 5 * unit, paint);
 					px += 5 * unit;
 				} else {
@@ -285,14 +294,14 @@ public class PracticeModeView extends View {
 				}
 			}
 			if (checkCollision(px, py, px + unit, py + 5 * unit))
-				draw = 2;
+				mGameState = 2;
 			canvas.drawRect(px, py, px + unit, py + 5 * unit, paint);
 			py += 5 * unit;
 			px = mazeX;
 		}
 		// print bottom line
 		if (checkCollision(px, py, px + 5 * mCols * unit + unit, py + unit))
-			draw = 2;
+			mGameState = 2;
 		canvas.drawRect(px, py, px + 5 * mCols * unit + unit, py + unit, paint);
 	}
 
@@ -304,6 +313,13 @@ public class PracticeModeView extends View {
 	}
 
 	public boolean onTouchEvent(MotionEvent event) {
+		switch(mGameState){
+		case STATE_CRASH:
+		case STATE_LOSS:
+		case STATE_WIN:
+			Log.d("IGNORED TOUCH!!","ignored");
+			return false;//don't handle touch event
+		}
 		int pointerIndex = event.getActionIndex();
 		int pointerId = event.getPointerId(pointerIndex);
 		int maskedAction = event.getActionMasked();
@@ -351,7 +367,7 @@ public class PracticeModeView extends View {
 		}
 		}
 		invalidate();
-		return true;
+		return true;//handle touch event
 	}
 	/**
 	 * called when opponent position update is received
@@ -359,6 +375,12 @@ public class PracticeModeView extends View {
 	 * @param yFract y of opponent represented as fraction of maze size
 	 */ 
 	public void updateOpponentPosition(float xFract, float yFract){
+		float xDiff = mazeXf-mazeX;
+		float yDiff = mazeYf-mazeY;
+		float xPixels = xFract*xDiff;
+		float yPixels = yFract*yDiff;
+		mOppBallX = mazeX + xPixels;
+		mOppBallY = mazeY + yPixels;
 		invalidate();
 	}
 }

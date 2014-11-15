@@ -17,7 +17,7 @@ import android.widget.Toast;
 import com.dpkabe.maze.bluetooth.BluetoothChatService;
 import com.dpkabe.maze.bluetooth.BluetoothEncoderDecoder;
 import com.dpkabe.maze.bluetooth.BluetoothMediator;
-import com.dpkabe.maze.bluetooth.MazerArbiter;
+import com.dpkabe.maze.bluetooth.MazeArbiter;
 import com.dpkabe.maze.mazeutils.MazeConstants;
 import com.dpkabe.maze.mazeutils.MazeGenerator;
 import com.example.maze.R;
@@ -170,7 +170,7 @@ public class ConnectActivity extends Activity {
 	private void startGame(int[][] maze1, int[][] maze2){
 		Intent i = new Intent(this, FlexibleMazeActivity.class);
 		
-		int[][] chosenMaze = MazerArbiter.getMaze(maze1, maze2);
+		int[][] chosenMaze = MazeArbiter.getMaze(maze1, maze2);
 		i.putExtra(FlexibleMazeActivity.KEY_MAZE, BluetoothEncoderDecoder.encodeMaze(chosenMaze));
 		
 		BluetoothMediator.mChatService=mChatService;

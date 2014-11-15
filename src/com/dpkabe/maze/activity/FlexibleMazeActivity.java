@@ -26,6 +26,9 @@ import com.example.maze.R;
  *
  */
 public class FlexibleMazeActivity extends Activity{
+
+	public static final int QUIT_DELAY = 2000;//in milliseconds
+	private boolean quitInitiated = false;
 	//BT STARTS
 	private static final String TAG = "BluetoothChat";
 	private static final boolean D = true;
@@ -66,7 +69,7 @@ public class FlexibleMazeActivity extends Activity{
 						// construct a string from the valid bytes in the buffer
 						String readMessage = new String(readBuf, 0, msg.arg1);
 						Log.d("receivedString",readMessage);
-						Toast.makeText(FlexibleMazeActivity.this, readMessage, Toast.LENGTH_SHORT).show();
+						//Toast.makeText(FlexibleMazeActivity.this, readMessage, Toast.LENGTH_SHORT).show();
 						decodeMessage(readMessage);
 						break;
 					case MESSAGE_DEVICE_NAME:
@@ -116,7 +119,17 @@ public class FlexibleMazeActivity extends Activity{
 			}
 		}
 	};
-	
+	public void quitAfterDelay(){
+		if(quitInitiated)
+			return;
+		new Handler().postDelayed(new Runnable(){
+			@Override
+			public void run(){
+				onBackPressed();
+			}
+		}, QUIT_DELAY);
+		quitInitiated=true;
+	}
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
@@ -131,6 +144,7 @@ public class FlexibleMazeActivity extends Activity{
         display.getSize(size);
         mDrawView = new PracticeModeView(this,size.x,size.y,mIntMaze,mHandler);
         mDrawView.setBackgroundColor(Color.WHITE);
+        mDrawView.setOnClickListener(endActivityOnClickListener);
         setContentView(mDrawView);
 	}
 	/**
@@ -176,6 +190,7 @@ public class FlexibleMazeActivity extends Activity{
 		mDrawView.setDrawState(PracticeModeView.STATE_WIN);
 	}
 	public void onOpponentWin(){
+		quitAfterDelay();//instead of in onOwnLoss sicne the event is not communicated
 		eventCommunicated = true;//not necessary as STATE_LOSS has no callback mechanism
 		mDrawView.setDrawState(PracticeModeView.STATE_LOSS);
 	}
@@ -186,12 +201,14 @@ public class FlexibleMazeActivity extends Activity{
 			eventCommunicated = true;
 			sendMessage(""+MazeConstants.EVENT_CRASH);
 		}
+		quitAfterDelay();
 	}
 	public void onWin(){
 		if(!eventCommunicated){
 			eventCommunicated = true;
 			sendMessage(""+MazeConstants.EVENT_WIN);
 		}
+		quitAfterDelay();
 	}
 	public void onOwnPositionUpdate(float xFract, float yFract){
 		sendMessage(MazeConstants.EVENT_POSITION_UPDATE+":"+xFract+":"+yFract);

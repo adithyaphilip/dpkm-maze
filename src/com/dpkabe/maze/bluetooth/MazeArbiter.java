@@ -6,7 +6,7 @@ package com.dpkabe.maze.bluetooth;
  * @author USER
  *
  */
-public class MazerArbiter {
+public class MazeArbiter {
 	public static int[][] getMaze(int[][] maze1, int[][] maze2){
 		for(int i =0;i<maze1.length;i++){
 			for(int j=0;j<maze1[0].length;j++){

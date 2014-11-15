@@ -371,6 +371,6 @@ public class PracticeMode extends View {
 		}
 		}
 		invalidate();
-		return true;
+		return false;
 	}
 }
