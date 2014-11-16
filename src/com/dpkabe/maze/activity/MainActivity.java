@@ -24,9 +24,14 @@ public class MainActivity extends Activity {
     public void on2PlayerClick(View v){
     	Intent i = new Intent(this, ConnectActivity.class);
     	startActivity(i);
-    }
+    }    
     public void onAchievementsClick(View v){
     	//when we get achievements up
+    
+    }
+    public void onInstructionsClick(View v){
+    	Intent i = new Intent(this, InstructionsActivity.class);
+    	startActivity(i);
     }
     public void onExitClick(View v){
     	super.onBackPressed();

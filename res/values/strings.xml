@@ -24,5 +24,34 @@
     <string name="connect">Connect a device</string>
     <string name="discoverable">Make discoverable</string>
     <string name="title_activity_dual_player">DualPlayerActivity</string>
+    <string name="instructions">
+		Instructions:\n
+		Player - gray dot\n
+		Opponent - orange dot\n
+		Player destination - light gray dot.\n
+		Opponent destination - light orange dot.\n
+		Keys - yellow dot\n
+		\n
+		Use bottom line to move horizontally.\n
+		Use left line to move vertically.\n
+		The pointers indicates position of dot.\n
+		Do NOT touch the walls of the maze. \n
+		\n
+		Practice:\n
+		Collect yellow keys to increment score or earn life.\n
+		If you loose your life, earn a life by collecting keys.\n 
+		The cost of lives increases by one every time you loose life.\n
+		You can not increase score unless you have one life.\n
+		Touch on your dot to set-up a teleport point P.\n 
+		Touch on your dot again to teleport back to P.\n
+		Make the highest score in a single streak.\n
+		\n		
+		Challenge:\n
+		Reach your destination before the opponent(computer).\n
+		\n		
+		2-player:\n
+		Allow blue-tooth request.\n
+		Search for an opponent device and pair.\n
+		Play the game.</string>
 
 </resources>
