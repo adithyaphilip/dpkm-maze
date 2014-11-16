@@ -1,5 +1,6 @@
 package com.dpkabe.maze.view;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -17,6 +18,7 @@ import android.view.View;
 import com.dpkabe.maze.mazeutils.MazeConstants;
 import com.dpkabe.maze.mazeutils.MazeGenerator;
 
+@SuppressLint("ViewConstructor")
 public class PracticeModeView extends View {
 	public final static int STATE_PLAY = 1;
 	public final static int STATE_CRASH = 2;
@@ -45,6 +47,7 @@ public class PracticeModeView extends View {
 	int key_count = 0;
 	float teleX, teleY;
 	boolean teleport = false;
+	float restoreX = 0, restoreY = 0;
 	Handler mHandler;
 
 	public PracticeModeView(Context context, float width, float height,
@@ -104,8 +107,9 @@ public class PracticeModeView extends View {
 			paintBall(canvas);
 			break;
 		case STATE_CRASH:
-			paintCrash(canvas);
-			postCrashMessage(mHandler);
+			//paintCrash(canvas);
+			//postCrashMessage(mHandler);
+			restoreBall();
 			break;
 		case STATE_WIN:
 			paintWinner(canvas);
@@ -129,12 +133,12 @@ public class PracticeModeView extends View {
 			for (int j = 0; j < mCols; j++) {
 				if ((mMaze[j][i] & 1) == 0) {
 					if (checkCollision(px, py, px + 5 * unit, py + unit))
-						mGameState = 2;
+						mGameState = STATE_CRASH;
 					canvas.drawRect(px, py, px + 5 * unit, py + unit, paint);
 					px += 5 * unit;
 				} else {
 					if (checkCollision(px, py, px + unit, py + unit))
-						mGameState = 2;
+						mGameState = STATE_CRASH;
 					canvas.drawRect(px, py, px + unit, py + unit, paint);
 					px += 5 * unit;
 				}
@@ -145,7 +149,7 @@ public class PracticeModeView extends View {
 			for (int j = 0; j < mCols; j++) {
 				if ((mMaze[j][i] & 8) == 0) {
 					if (checkCollision(px, py, px + unit, py + 5 * unit))
-						mGameState = 2;
+						mGameState = STATE_CRASH;
 					canvas.drawRect(px, py, px + unit, py + 5 * unit, paint);
 					px += 5 * unit;
 				} else {
@@ -153,20 +157,20 @@ public class PracticeModeView extends View {
 				}
 			}
 			if (checkCollision(px, py, px + unit, py + 5 * unit))
-				mGameState = 2;
+				mGameState = STATE_CRASH;
 			canvas.drawRect(px, py, px + unit, py + 5 * unit, paint);
 			py += 5 * unit;
 			px = mazeX;
 		}
 		// print bottom line
 		if (checkCollision(px, py, px + 5 * mCols * unit + unit, py + unit))
-			mGameState = 2;
+			mGameState = STATE_CRASH;
 		canvas.drawRect(px, py, px + 5 * mCols * unit + unit, py + unit, paint);
 	}
 
 	public boolean checkCollision(float px, float py, float pxf, float pyf) {
 		if (ballX > px - unit / 2 && ballX < pxf + unit / 2
-				&& ballY > py - unit / 2 && ballY < py + unit)
+				&& ballY > py - unit / 2 && ballY < pyf + unit / 2)
 			return true;
 		return false;
 	}
@@ -257,6 +261,8 @@ public class PracticeModeView extends View {
 					&& ballY < mazeY + 5 * unit * key.getY() + 5 * unit
 					&& ballY > mazeY + 5 * unit * key.getY() + 1 * unit) {
 				--key_count;
+				restoreX = key.getX();
+				restoreY = key.getY();
 				if (key.getNext() == null) {
 					keys.removeLastNode();
 				} else
@@ -273,25 +279,17 @@ public class PracticeModeView extends View {
 				&& ballY < mazeY + 5 * unit * destY + 4 * unit
 				&& ballY > mazeY + 5 * unit * destY + 2 * unit
 				&& key_count == 0) {
-			mGameState = 3;
+			mGameState = STATE_WIN;
 	}
 		paint.setColor(Color.GRAY);
 		canvas.drawCircle(ballX, ballY, unit, paint);
 	}
 
-	private void paintCrash(Canvas canvas) {
-		paint.setColor(Color.rgb(255, 145, 70));
-		canvas.drawRect(0, 0, W, H, paint);
-		paint.setColor(Color.WHITE);
-		paint.setTextSize(6 * unit);
-		paint.setTypeface(Typeface.DEFAULT_BOLD);
-		canvas.drawText("Nasty Bump!", (W - 11 * 3 * unit) / 2, H / 2, paint);
-	}
-
-	private void postCrashMessage(Handler h) {
-		Message msg = h.obtainMessage();
-		msg.what = MazeConstants.EVENT_CRASH;
-		h.sendMessage(msg);
+	private void restoreBall() {
+		mGameState = STATE_PLAY;
+		ballX = mazeX + 5 * unit * restoreX + 3 * unit;
+		ballY = mazeY + 5 * unit * restoreY + 3 * unit;
+		invalidate();
 	}
 
 	private void paintWinner(Canvas canvas) {
@@ -348,8 +346,7 @@ public class PracticeModeView extends View {
 		switch (maskedAction) {
 		case MotionEvent.ACTION_DOWN:
 		case MotionEvent.ACTION_POINTER_DOWN: {
-			if (event.getX() > (ballX - 3 * unit)
-					&& event.getX() < (ballX + 3 * unit)
+			if (event.getX() > (ballX - 3 * unit) && event.getX() < (ballX + 3 * unit)
 					&& event.getY() > (ballY - 3 * unit)
 					&& event.getY() < (ballY + 3 * unit)) {
 				teleport = !teleport;
@@ -363,10 +360,9 @@ public class PracticeModeView extends View {
 				break;
 			}
 
-			if (event.getX() > ballX - 1.5 * unit
-					&& event.getX() < ballX + 1.5 * unit
-					|| event.getY() > ballY - 1.5 * unit
-					&& event.getY() < ballY + 1.5 * unit) {
+			if (event.getX() > ballX - 1.2*unit && event.getX() < ballX + 1.2*unit
+					|| event.getY() > ballY - 1.2*unit
+					&& event.getY() < ballY + 1.2*unit) {
 				if (event.getY() < mazeY
 						&& (event.getX() > mazeX && event.getX() < mazeXf))
 					ballX = event.getX();
@@ -385,11 +381,11 @@ public class PracticeModeView extends View {
 			for (int size = event.getPointerCount(), i = 0; i < size; i++) {
 				PointF point = mActivePointers.get(event.getPointerId(i));
 				if (point != null) {
-					if (event.getX(i) > ballX - 1.5 * unit
-							&& event.getX(i) < ballX + 1.5 * unit)
+					if (event.getX(i) > ballX - 1.2*unit
+							&& event.getX(i) < ballX + 1.2*unit)
 						ballX = event.getX(i);
-					if (event.getY(i) > ballY - 1.5 * unit
-							&& event.getY(i) < ballY + 1.5 * unit)
+					if (event.getY(i) > ballY - 1.2*unit
+							&& event.getY(i) < ballY + 1.2*unit)
 						ballY = event.getY(i);
 				}
 			}

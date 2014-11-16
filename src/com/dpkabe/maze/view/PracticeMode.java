@@ -39,7 +39,7 @@ public class PracticeMode extends View {
 	int life_number = 0;
 	float restoreX = 0, restoreY = 0;
 	float teleX, teleY;
-	boolean teleport = false, touch = true;
+	boolean teleport = false;
 	int delay = 20;
 
 	public PracticeMode(Context context) {
@@ -97,12 +97,6 @@ public class PracticeMode extends View {
 				paintCrash(canvas);
 			else {
 				life_score = -1 * life_number++;
-				while (delay > 0) {
-					delay--;
-					touch = false;
-				}
-				touch = true;
-				delay = 20;
 				restoreBall();
 			}
 			break;
@@ -158,7 +152,7 @@ public class PracticeMode extends View {
 
 	public boolean checkCollision(float px, float py, float pxf, float pyf) {
 		if (ballX > px - unit / 2 && ballX < pxf + unit / 2
-				&& ballY > py - unit / 2 && ballY < py + unit)
+				&& ballY > py - unit / 2 && ballY < pyf + unit / 2)
 			return true;
 		return false;
 	}
@@ -336,10 +330,9 @@ public class PracticeMode extends View {
 				break;
 			}
 
-			if (event.getX() > ballX - 1.5 * unit
-					&& event.getX() < ballX + 1.5 * unit
-					|| event.getY() > ballY - 1.5 * unit
-					&& event.getY() < ballY + 1.5 * unit) {
+			if (event.getX() > ballX - 1.2*unit && event.getX() < ballX + 1.2*unit
+					|| event.getY() > ballY - 1.2*unit
+					&& event.getY() < ballY + 1.2*unit) {
 				if (event.getY() < mazeY
 						&& (event.getX() > mazeX && event.getX() < mazeXf))
 					ballX = event.getX();
@@ -354,19 +347,18 @@ public class PracticeMode extends View {
 			break;
 		}
 		case MotionEvent.ACTION_MOVE: {
-			if (touch) {
-				for (int size = event.getPointerCount(), i = 0; i < size; i++) {
-					PointF point = mActivePointers.get(event.getPointerId(i));
-					if (point != null) {
-						if (event.getX(i) > ballX - 1.5 * unit
-								&& event.getX(i) < ballX + 1.5 * unit)
-							ballX = event.getX(i);
-						if (event.getY(i) > ballY - 1.5 * unit
-								&& event.getY(i) < ballY + 1.5 * unit)
-							ballY = event.getY(i);
-					}
+			for (int size = event.getPointerCount(), i = 0; i < size; i++) {
+				PointF point = mActivePointers.get(event.getPointerId(i));
+				if (point != null) {
+					if (event.getX(i) > ballX - 1.2*unit
+							&& event.getX(i) < ballX + 1.2*unit)
+						ballX = event.getX(i);
+					if (event.getY(i) > ballY - 1.2*unit
+							&& event.getY(i) < ballY + 1.2*unit)
+						ballY = event.getY(i);
 				}
 			}
+
 			break;
 		}
 		case MotionEvent.ACTION_UP:

@@ -50,7 +50,17 @@
             android:name="com.dpkabe.maze.activity.ChallengeHardActivity"
             android:label="@string/app_name"
             android:screenOrientation="landscape"
-            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />         
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />   
+            <activity
+            android:name="com.dpkabe.maze.activity.InstructionsActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="landscape"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />  
+        <activity
+            android:name="com.dpkabe.maze.activity.AchievementsActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="landscape"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />       
         <activity
             android:name="com.dpkabe.maze.activity.FlexibleMazeActivity"
             android:label="@string/app_name"

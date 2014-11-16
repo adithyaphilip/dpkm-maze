@@ -22,6 +22,16 @@
 	    android:layout_height="wrap_content"
 	    android:layout_width="match_parent" />
 	<Button
+	    android:text="Achievements"
+	    android:onClick="onAchievementsClick"
+	    android:layout_height="wrap_content"
+	    android:layout_width="match_parent"/>
+	<Button
+	    android:text="Instructions"
+	    android:onClick="onInstructionsClick"
+	    android:layout_height="wrap_content"
+	    android:layout_width="match_parent"/>
+	<Button
 	    android:text="Exit"
 	    android:onClick="onExitClick"
 	    android:layout_height="wrap_content"
