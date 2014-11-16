@@ -36,7 +36,7 @@ public class ChallengeModeNormal extends View {
 	float iniX, iniY;
 	float rX, rY, retDestX, retDestY;
 	int pcSpeed = 24;
-
+	
 	public ChallengeModeNormal(Context context) {
 		super(context);
 	}

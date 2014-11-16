@@ -191,35 +191,38 @@ public final class R {
         public static final int ic_launcher=0x7f020000;
     }
     public static final class id {
-        public static final int button_scan=0x7f090005;
-        public static final int button_send=0x7f090009;
-        public static final int connect_scan=0x7f09000a;
-        public static final int container=0x7f090000;
-        public static final int discoverable=0x7f09000b;
-        public static final int edit_text_out=0x7f090008;
-        public static final int in=0x7f090007;
-        public static final int instructions=0x7f090006;
-        public static final int new_devices=0x7f090004;
-        public static final int paired_devices=0x7f090002;
-        public static final int title_new_devices=0x7f090003;
-        public static final int title_paired_devices=0x7f090001;
+        public static final int button_scan=0x7f090006;
+        public static final int button_send=0x7f09000a;
+        public static final int connect_scan=0x7f09000b;
+        public static final int container=0x7f090001;
+        public static final int discoverable=0x7f09000c;
+        public static final int edit_text_out=0x7f090009;
+        public static final int in=0x7f090008;
+        public static final int instructions=0x7f090007;
+        public static final int new_devices=0x7f090005;
+        public static final int paired_devices=0x7f090003;
+        public static final int title_new_devices=0x7f090004;
+        public static final int title_paired_devices=0x7f090002;
+        public static final int tv=0x7f090000;
     }
     public static final class layout {
-        public static final int activity_connect=0x7f030000;
-        public static final int activity_dual_player=0x7f030001;
-        public static final int activity_main=0x7f030002;
-        public static final int challenge_launcher=0x7f030003;
-        public static final int device_list=0x7f030004;
-        public static final int device_name=0x7f030005;
-        public static final int instructions=0x7f030006;
-        public static final int main=0x7f030007;
-        public static final int message=0x7f030008;
+        public static final int achievements=0x7f030000;
+        public static final int activity_connect=0x7f030001;
+        public static final int activity_dual_player=0x7f030002;
+        public static final int activity_main=0x7f030003;
+        public static final int challenge_launcher=0x7f030004;
+        public static final int device_list=0x7f030005;
+        public static final int device_name=0x7f030006;
+        public static final int instructions=0x7f030007;
+        public static final int main=0x7f030008;
+        public static final int message=0x7f030009;
     }
     public static final class menu {
         public static final int main=0x7f080000;
         public static final int option_menu=0x7f080001;
     }
     public static final class string {
+        public static final int achievements=0x7f060014;
         public static final int action_settings=0x7f060001;
         public static final int app_name=0x7f060000;
         public static final int bt_not_enabled_leaving=0x7f060005;

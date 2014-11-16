@@ -26,8 +26,8 @@ public class MainActivity extends Activity {
     	startActivity(i);
     }    
     public void onAchievementsClick(View v){
-    	//when we get achievements up
-    
+    	Intent i = new Intent(this, AchievementsActivity.class);
+    	startActivity(i);
     }
     public void onInstructionsClick(View v){
     	Intent i = new Intent(this, InstructionsActivity.class);

@@ -53,5 +53,7 @@
 		Allow blue-tooth request.\n
 		Search for an opponent device and pair.\n
 		Play the game.</string>
-
+	<string name="achievements">
+	    Achievements:\n
+	</string>
 </resources>
