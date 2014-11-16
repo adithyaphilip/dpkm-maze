@@ -330,9 +330,9 @@ public class PracticeMode extends View {
 				break;
 			}
 
-			if (event.getX() > ballX - unit && event.getX() < ballX + unit
-					|| event.getY() > ballY - unit
-					&& event.getY() < ballY + unit) {
+			if (event.getX() > ballX - 1.2*unit && event.getX() < ballX + 1.2*unit
+					|| event.getY() > ballY - 1.2*unit
+					&& event.getY() < ballY + 1.2*unit) {
 				if (event.getY() < mazeY
 						&& (event.getX() > mazeX && event.getX() < mazeXf))
 					ballX = event.getX();
@@ -350,11 +350,11 @@ public class PracticeMode extends View {
 			for (int size = event.getPointerCount(), i = 0; i < size; i++) {
 				PointF point = mActivePointers.get(event.getPointerId(i));
 				if (point != null) {
-					if (event.getX(i) > ballX - 2 * unit
-							&& event.getX(i) < ballX + 2 * unit)
+					if (event.getX(i) > ballX - 1.2*unit
+							&& event.getX(i) < ballX + 1.2*unit)
 						ballX = event.getX(i);
-					if (event.getY(i) > ballY - 2 * unit
-							&& event.getY(i) < ballY + 2 * unit)
+					if (event.getY(i) > ballY - 1.2*unit
+							&& event.getY(i) < ballY + 1.2*unit)
 						ballY = event.getY(i);
 				}
 			}
